@@ -1,0 +1,27 @@
+name: Update_ETF_Page
+on:
+  schedule:
+    - cron: '*/10 1-5 * * 1-5' # 台灣開盤時間每 10 分鐘跑一次
+  workflow_dispatch: # 支援手動觸發執行
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      - name: Update
+        run: |
+          pip install requests
+          python monitor.py
+      - name: Push
+        run: |
+          git config --global user.name "bot"
+          git config --global user.email "bot@github.com"
+          git add index.html
+          git commit -m "update" || exit 0
+          git push
